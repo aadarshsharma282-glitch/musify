@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Musify - Modern Music Experience</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Navigation / Header -->
+    <header class="top-nav">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18V5l12-2v13"></path>
+          <circle cx="6" cy="18" r="3" fill="currentColor"></circle>
+          <circle cx="18" cy="16" r="3" fill="currentColor"></circle>
+        </svg>
+        <span class="brand-title">Musify</span>
+      </div>
+
+      <div class="search-box">
+        <svg class="icon search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" id="search-input" placeholder="What do you want to play?" autocomplete="off" />
+        <button id="clear-search" class="clear-search-btn" title="Clear search" aria-label="Clear search" hidden>✕</button>
+      </div>
+
+      <div class="header-actions">
+        <label for="file-upload" class="btn-secondary upload-btn" title="Add your local MP3 files">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="17 8 12 3 7 8"></polyline>
+            <line x1="12" y1="3" x2="12" y2="15"></line>
+          </svg>
+          <span class="btn-text">Import Audio</span>
+        </label>
+        <input type="file" id="file-upload" accept="audio/*" multiple hidden />
+
+        <button id="shortcuts-btn" class="icon-btn-round" title="Keyboard Shortcuts" aria-label="Keyboard shortcuts">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect>
+            <line x1="6" y1="8" x2="6" y2="8"></line>
+            <line x1="10" y1="8" x2="10" y2="8"></line>
+            <line x1="14" y1="8" x2="14" y2="8"></line>
+            <line x1="18" y1="8" x2="18" y2="8"></line>
+            <line x1="6" y1="12" x2="6" y2="12"></line>
+            <line x1="18" y1="12" x2="18" y2="12"></line>
+            <line x1="10" y1="16" x2="14" y2="16"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace: Split between Player Stage & Playlist Queue -->
+    <main class="main-content">
+      <!-- Left / Center: Dynamic Now Playing Stage -->
+      <section class="player-stage">
+        <div class="stage-backdrop" id="stage-backdrop"></div>
+
+        <div class="stage-card">
+          <!-- Artwork Presentation -->
+          <div class="art-wrapper" id="art-wrapper">
+            <img id="album-art" src="" alt="Album Artwork" />
+            <div class="vinyl-overlay" id="vinyl-overlay">
+              <div class="vinyl-groove"></div>
+              <div class="vinyl-center"></div>
+            </div>
+            <div class="art-glow" id="art-glow"></div>
+          </div>
+
+          <!-- Track & Artist Info -->
+          <div class="track-header">
+            <div class="track-text">
+              <h1 id="track-title" class="track-title">Select a Track</h1>
+              <p id="track-artist" class="track-artist">Artist</p>
+              <span id="track-album" class="track-album">Album</span>
+            </div>
+            <button id="like-btn" class="icon-btn like-btn" title="Save to Your Library" aria-label="Save to favorites">
+              <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Live Audio Visualizer Canvas -->
+          <div class="visualizer-container">
+            <canvas id="visualizer-canvas"></canvas>
+          </div>
+
+          <!-- Audio Status Indicator -->
+          <div class="audio-badge-container">
+            <span class="badge" id="audio-quality-badge">Lossless • 320 kbps</span>
+            <span class="badge autoplay-badge" id="autoplay-indicator">Autoplay ON</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Playlist / Queue Section -->
+      <section class="playlist-section">
+        <div class="playlist-header">
+          <div class="playlist-meta">
+            <h2>Up Next & Playlist</h2>
+            <span class="song-count" id="song-count">0 songs</span>
+          </div>
+          <div class="playlist-tools">
+            <button id="shuffle-playlist-btn" class="btn-text-action" title="Shuffle queue order">
+              <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="16 3 21 3 21 8"></polyline>
+                <line x1="4" y1="20" x2="21" y2="3"></line>
+                <polyline points="21 16 21 21 16 21"></polyline>
+                <line x1="15" y1="15" x2="21" y2="21"></line>
+                <line x1="4" y1="4" x2="9" y2="9"></line>
+              </svg>
+              Shuffle Order
+            </button>
+          </div>
+        </div>
+
+        <div class="playlist-container" id="playlist-container" tabindex="0">
+          <ul id="playlist-tracks" class="playlist-tracks" role="list">
+            <!-- Dynamically populated playlist items -->
+          </ul>
+          <div id="no-results" class="no-results" hidden>
+            <p>No songs found matching your search.</p>
+          </div>
+        </div>
+
+        <div class="drop-zone" id="drop-zone">
+          <svg class="icon drop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>Drop MP3 audio files here to add</span>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Persistent Playback Bar (Signature Spotify Style) -->
+    <footer class="bottom-bar">
+      <!-- Mini Track Info -->
+      <div class="bar-left">
+        <div class="mini-art-wrapper">
+          <img id="mini-art" src="" alt="Album Artwork" />
+        </div>
+        <div class="mini-info">
+          <div id="mini-title" class="mini-title">Track Title</div>
+          <div id="mini-artist" class="mini-artist">Artist</div>
+        </div>
+        <button id="mini-like-btn" class="icon-btn mini-like-btn" title="Save to Your Library" aria-label="Save to favorites">
+          <svg class="heart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Central Controls & Scrubber -->
+      <div class="bar-center">
+        <!-- Playback Action Buttons -->
+        <div class="player-controls">
+          <button id="shuffle-btn" class="icon-btn toggle-btn" title="Enable Shuffle (S)" aria-label="Shuffle">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+          </button>
+
+          <button id="prev-btn" class="icon-btn control-step" title="Previous Song (P or Left Arrow)" aria-label="Previous">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="19 20 9 12 19 4 19 20"></polygon>
+              <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"></line>
+            </svg>
+          </button>
+
+          <button id="play-pause-btn" class="play-pause-btn" title="Play / Pause (Space)" aria-label="Play">
+            <svg id="play-icon" class="main-ctrl-icon" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="6 3 20 12 6 21 6 3"></polygon>
+            </svg>
+            <svg id="pause-icon" class="main-ctrl-icon" viewBox="0 0 24 24" fill="currentColor" hidden>
+              <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+              <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+            </svg>
+          </button>
+
+          <button id="next-btn" class="icon-btn control-step" title="Next Song (N or Right Arrow)" aria-label="Next">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 4 15 12 5 20 5 4"></polygon>
+              <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"></line>
+            </svg>
+          </button>
+
+          <button id="repeat-btn" class="icon-btn toggle-btn" title="Repeat: Off (R)" aria-label="Repeat">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="17 1 21 5 17 9"></polyline>
+              <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+              <polyline points="7 23 3 19 7 15"></polyline>
+              <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+            </svg>
+            <span class="repeat-one-indicator" id="repeat-one-badge">1</span>
+          </button>
+        </div>
+
+        <!-- Scrubber Progress Bar -->
+        <div class="progress-bar-container">
+          <span id="current-time" class="time-label">0:00</span>
+          <div class="progress-slider-wrapper" id="progress-wrapper">
+            <div class="progress-buffer" id="progress-buffer"></div>
+            <div class="progress-bar-fill" id="progress-fill"></div>
+            <div class="progress-handle" id="progress-handle"></div>
+            <div class="progress-tooltip" id="progress-tooltip">0:00</div>
+          </div>
+          <span id="duration-time" class="time-label">0:00</span>
+        </div>
+      </div>
+
+      <!-- Right Extras: Volume & Quick Controls -->
+      <div class="bar-right">
+        <div class="volume-container">
+          <button id="volume-icon-btn" class="icon-btn" title="Mute / Unmute (M)" aria-label="Volume">
+            <!-- High Volume -->
+            <svg id="vol-high" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <!-- Low Volume -->
+            <svg id="vol-low" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden>
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+            <!-- Muted -->
+            <svg id="vol-muted" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden>
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" fill="currentColor"></polygon>
+              <line x1="23" y1="9" x2="17" y2="15"></line>
+              <line x1="17" y1="9" x2="23" y2="15"></line>
+            </svg>
+          </button>
+          <div class="volume-slider-wrapper" id="volume-wrapper">
+            <div class="volume-fill" id="volume-fill"></div>
+            <div class="volume-handle" id="volume-handle"></div>
+          </div>
+          <span id="volume-percentage" class="volume-text">80%</span>
+        </div>
+
+        <button id="playlist-toggle-btn" class="icon-btn mobile-playlist-toggle" title="Toggle Playlist Queue" aria-label="Toggle Playlist">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Shortcuts Modal Dialog -->
+    <div id="shortcuts-modal" class="modal-backdrop" hidden>
+      <div class="modal-card">
+        <div class="modal-header">
+          <h3>Keyboard Shortcuts</h3>
+          <button id="close-modal-btn" class="close-modal" aria-label="Close modal">✕</button>
+        </div>
+        <div class="shortcuts-list">
+          <div class="shortcut-item">
+            <span class="keys"><kbd>Space</kbd></span>
+            <span class="desc">Play / Pause</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>→</kbd> / <kbd>←</kbd></span>
+            <span class="desc">Seek Forward / Backward 5s</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>N</kbd> / <kbd>P</kbd></span>
+            <span class="desc">Next / Previous Song</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>↑</kbd> / <kbd>↓</kbd></span>
+            <span class="desc">Volume Up / Down 5%</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>M</kbd></span>
+            <span class="desc">Mute / Unmute</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>S</kbd></span>
+            <span class="desc">Toggle Shuffle</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>R</kbd></span>
+            <span class="desc">Cycle Repeat (Off / All / One)</span>
+          </div>
+          <div class="shortcut-item">
+            <span class="keys"><kbd>L</kbd></span>
+            <span class="desc">Like / Favorite Song</span>
+          </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Hidden Native Audio Element -->
+    <audio id="audio-element" preload="metadata"></audio>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
